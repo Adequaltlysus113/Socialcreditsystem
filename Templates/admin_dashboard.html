@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Admin Dashboard</title>
+	<style>
+		body { 
+			font-family: 'Segoe UI', system-ui, sans-serif;
+			margin: 0;
+			background: #f5f7fa;
+			color: #2d3748;
+			line-height: 1.5;
+		}
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 2rem 1rem;
+		}
+		.dashboard { 
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+			gap: 1rem;
+			margin-bottom: 1rem;
+		}
+
+		@media (max-width: 768px) {
+			.container { padding: 0.5rem; }
+			.card { margin: 0.5rem 0; border-radius: 0; }
+			.actions form { padding: 10px; }
+			.actions input, .actions select { 
+				width: 100%;
+				margin: 5px 0;
+				box-sizing: border-box;
+			}
+			.actions button {
+				width: 100%;
+				margin: 5px 0;
+			}
+			table { font-size: 0.9rem; }
+			th, td { padding: 0.75rem 0.5rem; }
+		}
+		.card { 
+			background: white;
+			padding: 1.5rem;
+			border-radius: 10px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+		table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+		th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+		th { background-color: #f2f2f2; }
+		tr:hover { background-color: #f5f5f5; }
+		.header { display: flex; justify-content: space-between; align-items: center; }
+		.header a { text-decoration: none; color: #666; }
+		.actions { margin-top: 20px; }
+		.actions form { margin-bottom: 15px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }
+		.actions input, .actions select { padding: 8px; margin-right: 10px; margin-bottom: 10px; }
+		.actions button { padding: 8px 15px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+		.danger { background-color: #f44336 !important; }
+		h2 { color: #333; }
+	</style>
+</head>
+<body>
+	<div class="header">
+		<h1>Admin Dashboard</h1>
+		<a href="/">Back to Rankings</a>
+	</div>
+
+	<div class="dashboard">
+		<div class="card">
+			<h2>System Statistics</h2>
+			<p>Total users: {{ stats.total }}</p>
+			<p>Active users: {{ stats.active }}</p>
+			<p>Inactive users: {{ stats.inactive }}</p>
+			<p>Average score: {{ stats.avg }}</p>
+			<p>Median score: {{ stats.median }}</p>
+			<p>Maximum score: {{ stats.max }}</p>
+			<p>Minimum score: {{ stats.min }}</p>
+			<p>Unique visitors: {{ visitor_count }}</p>
+		</div>
+
+		<div class="card">
+			<h2>Recent Activity</h2>
+			<table>
+				<tr>
+					<th>Time</th>
+					<th>Action</th>
+					<th>User</th>
+					<th>Details</th>
+				</tr>
+				{% for action in recent_actions %}
+				<tr>
+					<td>{{ action.timestamp }}</td>
+					<td>{{ action.type }}</td>
+					<td>{{ action.user }}</td>
+					<td>{{ action.details }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+
+	<div class="card actions">
+		<h2>User Management</h2>
+		<form action="/admin/add_user" method="POST">
+			<h3>Add New User</h3>
+			<input type="text" name="name" placeholder="Username" required>
+			<input type="number" name="score" placeholder="Initial Score" value="0">
+			<button type="submit">Add User</button>
+		</form>
+
+		<form action="/admin/update_score" method="POST">
+			<h3>Update Score</h3>
+			<select name="user" required>
+				<option value="">Select User</option>
+				{% for user in users %}
+				<option value="{{ user.name }}">{{ user.name }} (Current: {{ user.score }})</option>
+				{% endfor %}
+			</select>
+			<input type="number" name="points" placeholder="Points" required>
+			<select name="action" required>
+				<option value="add">Add Points</option>
+				<option value="subtract">Subtract Points</option>
+			</select>
+			<button type="submit">Update Score</button>
+		</form>
+
+		<form action="/admin/remove_user" method="POST">
+			<h3>Remove User</h3>
+			<select name="user" required>
+				<option value="">Select User</option>
+								{% for user in users %}
+				<option value="{{ user.name }}">{{ user.name }}</option>
+				{% endfor %}
+			</select>
+			<button type="submit" class="danger">Remove User</button>
+		</form>
+	</div>
+
+	<div class="card">
+		<h2>All Users</h2>
+		<table>
+			<tr>
+				<th>Rank</th>
+				<th>Name</th>
+				<th>Score</th>
+				<th>Last Updated</th>
+			</tr>
+			{% for user in sorted_users %}
+			<tr>
+				<td>{{ loop.index }}</td>
+				<td>{{ user.name }}</td>
+				<td>{{ user.score }}</td>
+				<td>{{ user.history[-1].date if user.history else "N/A" }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</body>
+</html>
