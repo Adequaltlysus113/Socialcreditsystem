@@ -1,97 +1,94 @@
-Sure! Here's a basic `README.md` file that explains the functionality of your Flask app:
+# Social Credit System
 
----
+This project is a web-based karma points tracking system designed to monitor and manage user scores through positive and negative actions. It offers both a command-line interface and a web interface for ease of use.
 
-# Flask Admin Dashboard with Google Login
+## Features
 
-This Flask application provides a simple admin dashboard with two types of login options:
-1. **Admin Login**: Access to the dashboard is secured with a simple password (`admin123`).
-2. **Google Login**: Users can log in via Google OAuth to access a user-specific dashboard.
+- **User Management**: Add, view, and remove users
+- **Points System**: Award positive points or deduct points from users
+- **History Tracking**: Maintain a history of score changes
+- **Ranking System**: View users ranked by their scores
+- **Comments**: Users can leave comments
+- **Admin Dashboard**: Access advanced management features
+- **Visitor Analytics**: Track unique site visitors
+- **Statistics**: View system statistics including averages, medians, and user activity
 
-### Features:
-- **Admin Dashboard**: Displays user scores, visitor counts, and recent actions (log file).
-- **Google Login Integration**: Users can log in using their Google account via OAuth2.
-- **Simple Admin Password**: Admins can access the dashboard using a hardcoded password (`admin123`).
+## Getting Started
 
----
+### Prerequisites
 
-## Requirements
+- Python 3.6+
+- Flask web framework
 
-- Python 3.7+ (or compatible)
-- Flask
-- Flask-Dance (for Google OAuth integration)
+### Installation
 
----
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/karma-points-system.git
+cd karma-points-system
+```
 
-## Installation
+2. Install required packages
+```bash
+pip install flask
+```
 
-1. Clone the repository:
+3. Run the application
+```bash
+python main.py
+```
 
-   ```bash
-   git clone https://github.com/yourusername/flask-admin-dashboard.git
-   cd flask-admin-dashboard
-   ```
+### Usage
 
-2. Set up a virtual environment (optional but recommended):
+#### Command Line Interface
 
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+When you run the application, you'll see a menu with these options:
 
-3. Install the required dependencies:
+1. Add Positive Action
+2. Add Negative Action
+3. View Score
+4. View Rankings
+5. Add New User
+6. Remove User
+7. View Unique Visitors
+8. View System Statistics
+9. Access Admin Dashboard (Web)
+10. Exit
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+#### Web Interface
 
-4. Set up your Google OAuth credentials:
-   - Visit the [Google Developer Console](https://console.developers.google.com/).
-   - Create a new project and enable the "Google+ API" and "OAuth 2.0" credentials.
-   - Set up the OAuth consent screen and create OAuth 2.0 credentials.
-   - Replace `"YOUR_GOOGLE_CLIENT_ID"` and `"YOUR_GOOGLE_CLIENT_SECRET"` in `app.py` with your actual credentials.
+The web interface is available at:
+- Main page: http://localhost:5000/
+- Admin dashboard: http://localhost:5000/admin
 
----
+### Admin Access
 
-## Running the App
+Admin access is restricted to authorized users in the `APPROVED_ADMINS` list in the code.
 
-1. Run the Flask application:
+## Data Storage
 
-   ```bash
-   python app.py
-   ```
+The system stores data in three files:
+- `users_data.json`: Contains all user data, scores, and history
+- `visitor_log.txt`: Logs visitor information
+- `ip_cache.json`: Caches visitor IP addresses to prevent duplicate logging
 
-2. Visit the following routes in your browser:
-   - **Home Page**: `/` - The welcome page.
-   - **Admin Login**: `/admin` - Login with the password `admin123` to access the admin dashboard.
-   - **Google Login**: `/google` - Log in with your Google account to view Google-specific user information.
+## Badge System
 
----
+The system awards weekly badges to top performers every Sunday.
 
-## App Structure
+## Contributing
 
-- `app.py`: The main application logic for Flask, handling routes for the admin login, dashboard, and Google OAuth login.
-- `templates/`:
-  - `index.html`: The homepage of the app.
-  - `admin_login.html`: The admin login page that asks for the password `admin123`.
-  - `admin_dashboard.html`: The dashboard shown after admin login, displaying user data, visitor count, and recent actions.
-  - `google_dashboard.html`: The page shown after Google login, displaying basic user info from Google.
-- `log.txt`: A log file to track actions, used for displaying visitor count and recent activities.
-
----
-
-## Customization
-
-- **Password**: The default admin password is `admin123`. You can change this to any value by modifying the `admin_password` variable in `app.py`.
-- **User Data**: The sample user data is currently hardcoded. You can replace this with a database or another source of data.
-- **Google Login**: Make sure to set up your Google OAuth credentials as explained in the setup section.
-
----
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
----
+## Acknowledgments
 
-Feel free to update the sections based on your project’s specific needs. Let me know if you need more details or adjustments!
+- Flask documentation
+- Python statistics library
