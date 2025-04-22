@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login with Firebase</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <!-- Email/Password Form -->
+  <form id="loginForm">
+    <label>Email:</label><br>
+    <input type="email" id="email" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Login with Email</button>
+  </form>
+
+  <br>
+
+  <!-- Google Login Button -->
+  <button id="googleLoginBtn">Login with Google</button>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCVZOED8Gm9U6G4KoovSapoMY5IPLjKv5A",
+      authDomain: "project-23b89.firebaseapp.com",
+      projectId: "project-23b89",
+      storageBucket: "project-23b89.appspot.com",
+      messagingSenderId: "958042848507",
+      appId: "1:958042848507:web:2ab2ba5da934ed2652045e",
+      measurementId: "G-7KF9V88FYQ"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Email/Password Login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          return userCredential.user.getIdToken();
+        })
+        .then(idToken => {
+          // Send token to Flask backend
+          fetch('/', {
+            method: 'GET', // Or POST depending on your route
+            headers: {
+              'Authorization': `Bearer ${idToken}`
+            }
+          }).then(response => {
+            if (response.ok) {
+              // Redirect to dashboard or home page
+              window.location.href = '/';
+            } else {
+              alert('Login failed on server');
+            }
+          });
+        })
+        .catch(error => {
+          alert('Login failed: ' + error.message);
+        });
+    });
+
+    // Google Login
+    document.getElementById('googleLoginBtn').addEventListener('click', function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+
+      firebase.auth().signInWithPopup(provider)
+        .then(result => {
+          return result.user.getIdToken();
+        })
+        .then(idToken => {
+          // Send Google token to Flask backend
+          fetch('/', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${idToken}`
+            }
+          }).then(response => {
+            if (response.ok) {
+              window.location.href = '/';  // Redirect after successful login
+            } else {
+              alert('Google login failed on server');
+            }
+          });
+        })
+        .catch(error => {
+          alert('Google login failed: ' + error.message);
+        });
+    });
+  </script>
+
+</body>
+</html>
