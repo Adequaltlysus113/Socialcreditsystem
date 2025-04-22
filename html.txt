@@ -1,0 +1,400 @@
+meta http-equiv="refresh" content="5">
+	<body { 
+			font-family: system-ui, -apple-system, sans-serif;
+			margin: 0;
+			background: var(--bg);
+			color: var(--text);
+			line-height: 1.5;
+			-webkit-text-size-adjust: 100%;
+		}
+
+		.container {
+			max-width: 1000px;
+			margin: 0 auto;
+			padding: 1rem;
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		@media (max-width: 768px) {
+			.container { padding: 0.5rem; }
+			.card { border-radius: 0; }
+			th, td { padding: 0.75rem 0.5rem; font-size: 0.9rem; }
+			.rank { width: 50px; }
+			.score { width: 70px; }
+			h1 { font-size: 1.5rem; }
+			.admin-link { width: 100%; text-align: center; box-sizing: border-box; }
+		}
+
+		.header {
+			margin-bottom: 2rem;
+		}
+
+		h1 {
+			font-size: 2rem;
+			font-weight: 700;
+			margin: 0 0 0.5rem 0;
+			color: var(--text);
+		}
+
+		.refresh-note {
+			color: var(--text-light);
+			font-size: 0.875rem;
+		}
+
+		.card {
+			background: var(--card-bg);
+			border-radius: 1rem;
+			box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+			overflow: hidden;
+		}
+
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		th {
+			background: var(--bg);
+			font-weight: 600;
+			color: var(--text-light);
+			text-transform: uppercase;
+			font-size: 0.75rem;
+			letter-spacing: 0.05em;
+		}
+
+		th, td {
+			padding: 1rem;
+			text-align: left;
+		}
+
+		tr:not(:last-child) {
+			border-bottom: 1px solid var(--border);
+		}
+
+		.rank {
+			font-weight: 600;
+			color: var(--primary);
+			width: 80px;
+		}
+
+		.score {
+			font-weight: 600;
+			color: var(--text);
+			width: 100px;
+		}
+
+		.top-score { background: #fef3c7; }
+		.second-score { background: #f1f5f9; }
+		.third-score { background: #fff7ed; }
+
+		.admin-link {
+			display: inline-flex;
+			align-items: center;
+			padding: 0.75rem 1.5rem;
+			background: var(--primary);
+			color: white;
+			text-decoration: none;
+			border-radius: 0.5rem;
+			font-weight: 500;
+			transition: all 0.2s;
+			margin-bottom: 1.5rem;
+		}
+
+		.admin-link:hover {
+			background: var(--primary-dark);
+		}
+
+		.feedback-section {
+			margin-top: 2rem;
+			padding: 1.5rem;
+			background: var(--card-bg);
+			border-radius: 0.5rem;
+			text-align: center;
+		}
+
+		.feedback-link {
+			color: var(--primary);
+			text-decoration: none;
+			font-weight: 500;
+		}
+
+		.feedback-link:hover {
+			color: var(--primary-dark);
+		}
+
+		.application-section {
+			margin-top: 2rem;
+			padding: 1.5rem;
+			background: var(--card-bg);
+			border-radius: 0.5rem;
+			text-align: center;
+		}
+
+		.application-form textarea {
+			width: 100%;
+			padding: 0.75rem;
+			border: 1px solid var(--border);
+			border-radius: 0.25rem;
+			margin-bottom: 1rem;
+			min-height: 100px;
+		}
+	</style>
+</head>
+<body>
+	<div style="display: flex; justify-content: space-between; padding: 1rem;">
+		<a href="/admin" class="admin-link">Admin Dashboard</a>
+		{% if not replit_user %}
+		<button onclick="LoginWithReplit()" class="login-button">Login with Replit</button>
+		{% else %}
+			{% if not selected_user %}
+			<div class="user-selection">
+				<h3>Select Your User Profile</h3>
+				<form action="/select_user" method="POST">
+					<select name="selected_user" required>
+						<option value="">Choose your user...</option>
+						{% for user in users %}
+						<option value="{{ user.name }}">{{ user.name }}</option>
+						{% endfor %}
+					</select>
+					<button type="submit" class="login-button">Select User</button>
+				</form>
+			</div>
+			{% else %}
+			<div class="user-welcome">Welcome, {{ selected_user }}!</div>
+			{% endif %}
+		{% endif %}
+	</div>
+	<div class="container">
+		<div class="header">
+			<h1>Live Rankings</h1>
+			<p class="refresh-note"><small>Updated automatically every 5 seconds</small></p>
+		</div>
+		<div class="card">
+			<table>
+				<tr>
+					<th class="rank">#</th>
+					<th>Name</th>
+					<th class="score">Score</th>
+				</tr>
+				{% for user in users %}
+				<tr class="{% if loop.index == 1 %}top-score{% elif loop.index == 2 %}second-score{% elif loop.index == 3 %}third-score{% endif %}">
+					<td class="rank">{{ loop.index }}</td>
+					<td>{{ user.name }}</td>
+					<td class="score">{{ user.score }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% if replit_user %}
+		<div class="user-section">
+			{% if user_stats %}
+			<div class="stats-card">
+				<h3>Your Stats</h3>
+				<p>Current Score: {{ user_stats.score }}</p>
+				<p>Rank: {{ users.index(user_stats) + 1 }}</p>
+				<h4>Score History</h4>
+				<ul>
+				{% for entry in user_stats.history[-5:] %}
+					<li>{{ entry.date }}: {{ entry.score }}</li>
+				{% endfor %}
+				</ul>
+				{% if user_stats.badges %}
+				<h4>Your Badges</h4>
+				<div class="badges">
+					{% for badge in user_stats.badges %}
+					<div class="badge">
+						<span class="badge-icon">🏆</span>
+						<p>Weekly Winner</p>
+						<small>{{ badge.date }}</small>
+					</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+			</div>
+			{% endif %}
+		</div>
+		{% endif %}
+
+		<div class="comments-section">
+			<h3>Comments</h3>
+			{% if selected_user %}
+			<form action="/add_comment" method="POST" class="comment-form">
+				<textarea name="comment" required placeholder="Add your comment..."></textarea>
+				<button type="submit">Post Comment</button>
+			</form>
+			{% endif %}
+			<div class="comments-list">
+				{% for user in users %}
+					{% for comment in user.comments %}
+					<div class="comment">
+						<strong>{{ comment.user }}</strong>
+						<small>{{ comment.date }}</small>
+						<p>{{ comment.text }}</p>
+					</div>
+					{% endfor %}
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="application-section">
+			<h3>Submit Applications</h3>
+			{% if selected_user %}
+			<form action="/submit_application" method="POST" class="application-form">
+				<select name="request_type" required>
+					<option value="">Select Request Type...</option>
+					<option value="admin">Admin Access</option>
+					<option value="points_increase">Points Increase</option>
+					<option value="points_decrease">Points Decrease</option>
+				</select>
+				<textarea name="reason" required placeholder="Explain your reason for this request..."></textarea>
+				<button type="submit">Submit Application</button>
+			</form>
+			{% endif %}
+		</div>
+
+		<div class="comments-section">
+			<h3>Comments</h3>
+			{% if selected_user %}
+			<form action="/add_comment" method="POST" class="comment-form">
+				<textarea name="comment" required placeholder="Add your comment..."></textarea>
+				<button type="submit">Post Comment</button>
+			</form>
+			{% endif %}
+			<div class="comments-list">
+				{% for user in users %}
+					{% for comment in user.comments %}
+					<div class="comment">
+						<strong>{{ comment.user }}</strong>
+						<small>{{ comment.date }}</small>
+						<p>{{ comment.text }}</p>
+					</div>
+					{% endfor %}
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="feedback-section">
+			<a href="https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAAMAAEsx4BdUQzZNNjdBWEtRWDBBWlU4SDJEWVhHUEU5Ni4u" target="_blank" class="feedback-link">
+				Fill Out Our Feedback Form
+			</a>
+		</div>
+	</div>
+
+	<style>
+	.comments-section {
+		margin-top: 2rem;
+		background: white;
+		padding: 1.5rem;
+		border-radius: 0.5rem;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+
+	.comment-form textarea {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid var(--border);
+		border-radius: 0.25rem;
+		margin-bottom: 1rem;
+		min-height: 100px;
+	}
+
+	.comment {
+		padding: 1rem;
+		border-bottom: 1px solid var(--border);
+	}
+
+	.comment small {
+		color: var(--text-light);
+		margin-left: 0.5rem;
+	}
+
+	.badges {
+		display: flex;
+		gap: 1rem;
+		flex-wrap: wrap;
+		margin-top: 1rem;
+	}
+
+	.badge {
+		background: #fff7ed;
+		padding: 0.75rem;
+		border-radius: 0.5rem;
+		text-align: center;
+	}
+
+	.badge-icon {
+		font-size: 2rem;
+	}
+
+	.login-section, .user-section {
+		background: white;
+		padding: 1.5rem;
+		border-radius: 0.5rem;
+		margin: 1rem 0;
+		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+	}
+
+	.stats-card {
+		background: #f8fafc;
+		padding: 1rem;
+		border-radius: 0.5rem;
+		margin-top: 1rem;
+	}
+
+	.stats-card ul {
+		list-style: none;
+		padding: 0;
+	}
+
+	.stats-card li {
+		padding: 0.5rem 0;
+		border-bottom: 1px solid #e2e8f0;
+	}
+
+	.login-button {
+		background: #3b82f6;
+		color: white;
+		padding: 0.75rem 1.5rem;
+		border: none;
+		border-radius: 0.5rem;
+		font-size: 1rem;
+		cursor: pointer;
+		margin-top: 1rem;
+	}
+
+	.login-button:hover {
+		background: #2563eb;
+	}
+	</style>
+
+	<script>
+	function LoginWithReplit() {
+		window.addEventListener("message", authComplete);
+		var h = 500;
+		var w = 350;
+		var left = screen.width / 2 - w / 2;
+		var top = screen.height / 2 - h / 2;
+
+		var authWindow = window.open(
+			"https://replit.com/auth_with_repl_site?domain=" + location.host,
+			"_blank",
+			"modal=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=" +
+			w +
+			", height=" +
+			h +
+			", top=" +
+			top +
+			", left=" +
+			left
+		);
+
+		function authComplete(e) {
+			if (e.data !== "auth_complete") {
+				return;
+			}
+			window.removeEventListener("message", authComplete);
+			authWindow.close();
+			location.reload();
+		}
+	}
